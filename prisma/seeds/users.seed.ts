@@ -22,6 +22,7 @@ export default async function seedUsers(prisma: PrismaClient) {
       role: "STAFF",
       rawPassword: "Staff@123"
     }
+    // "name": "New User", "email": "newuser@test.com", "password": "Test@123", "role": "STAFF"}
   ];
 
   for (const user of users) {

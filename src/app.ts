@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./auth/auth.routes";
 import orderRoutes from "./routes/order.routes";
 import kpiRoutes from "./routes/kpi.routes";
+import userRoutes from "./routes/user.routes";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", kpiRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Shopio Backend API" });
