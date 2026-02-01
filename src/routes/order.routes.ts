@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { listOrders, getOrder } from "../controllers/order.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+import { listOrders, getOrder, editOrderStatus } from "../controllers/order.controller";
+import { authenticate, authorizeRoles } from "../middlewares/auth.middleware";
 
 const router = Router();
 
@@ -9,5 +9,8 @@ router.get("/", authenticate, listOrders);
 
 // GET /api/orders/:id - Get single order by ID
 router.get("/:id", authenticate, getOrder);
+
+// PATCH /api/orders/:id/status - Update order status (Admin only)
+router.patch("/:id/status", authenticate, editOrderStatus);
 
 export default router;

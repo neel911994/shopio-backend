@@ -83,3 +83,36 @@ export const getOrderById = async (id: string) => {
         }))
     };
 };
+
+export const updateOrderStatus = async (id: string, status: string) => {
+    const existingOrder = await prisma.order.findUnique({
+        where: { id }
+    });
+
+    if (!existingOrder) {
+        throw new Error("Order not found");
+    }
+
+    const validStatuses = ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
+    if (!validStatuses.includes(status)) {
+        throw new Error("Invalid status. Must be one of: " + validStatuses.join(", "));
+    }
+
+    const updatedOrder = await prisma.order.update({
+        where: { id },
+        data: { status: status as any },
+        select: {
+            id: true,
+            status: true,
+            totalAmount: true,
+            customer: {
+                select: {
+                    name: true
+                }
+            },
+            createdAt: true
+        }
+    });
+
+    return updatedOrder;
+};

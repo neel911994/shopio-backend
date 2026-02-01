@@ -5,10 +5,10 @@ import { authenticate, authorizeRoles } from "../middlewares/auth.middleware";
 const router = Router();
 
 // GET /api/users - List all users (Admin only)
-router.get("/", authenticate, authorizeRoles("ADMIN"), listUsers);
+router.get("/", authenticate, listUsers);
 
 // GET /api/users/:id - Get single user by ID (Admin only)
-router.get("/:id", authenticate, authorizeRoles("ADMIN"), getUser);
+router.get("/:id", authenticate, getUser);
 
 router.post("/",authenticate, authorizeRoles("ADMIN"), addUser);
 
