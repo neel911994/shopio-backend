@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import authRoutes from "./auth/auth.routes";
+import authRoutes from "./routes/auth.routes";
 import orderRoutes from "./routes/order.routes";
 import kpiRoutes from "./routes/kpi.routes";
 import userRoutes from "./routes/user.routes";
