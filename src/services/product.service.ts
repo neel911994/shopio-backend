@@ -90,8 +90,43 @@ export const updateProduct = async (
 export const addProduct = async (
     name: string,
     description: string,
-    price: Float16Array,
+    price: number,
     stock: number,
-    category:string,
-    isActive: Boolean
-)
+    categoryId: string,
+    isActive: boolean
+) => {
+    const category = await prisma.category.findUnique({
+        where: { id: categoryId }
+    });
+
+    if (!category) {
+        throw new Error("Category not found");
+    }
+
+    const product = await prisma.product.create({
+        data: {
+            name,
+            description,
+            price,
+            stock,
+            categoryId,
+            isActive
+        },
+        select: {
+            id: true,
+            name: true,
+            description: true,
+            price: true,
+            stock: true,
+            isActive: true,
+            category: {
+                select: {
+                    name: true
+                }
+            },
+            createdAt: true
+        }
+    });
+
+    return product;
+};

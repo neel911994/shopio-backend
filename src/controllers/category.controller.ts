@@ -14,7 +14,8 @@ export const getCategories = async (req: Request, res: Response) => {
 // GET /api/categories/:id - Get category by ID
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
-        const category = await categoryService.getCategoryById(req.params.id);
+        const id = req.params.id as string;
+        const category = await categoryService.getCategoryById(id);
         res.json(category);
     } catch (error: any) {
         res.status(404).json({ error: error.message });
