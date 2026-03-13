@@ -1,14 +1,30 @@
+import "dotenv/config";
 import express from "express";
-import authRoutes from "./auth/auth.routes";
+import cors from "cors";
+import authRoutes from "./routes/auth.routes";
+import orderRoutes from "./routes/order.routes";
+import kpiRoutes from "./routes/kpi.routes";
+import userRoutes from "./routes/user.routes";
+import productRoutes from "./routes/product.routes";
+import customerRoutes from "./routes/customer.routes";
+import categoryRoutes from "./routes/category.routes";
 
 const app = express();
 
-app.use(express.json()); // REQUIRED for login/signup APIs
+app.use(cors());
+app.use(express.json());
 
-app.use("/auth", authRoutes);
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/dashboard", kpiRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/categories", categoryRoutes);
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+app.get("/", (req, res) => {
+  res.json({ message: "Shopio Backend API" });
 });
 
 export default app;
