@@ -10,7 +10,7 @@ router.get("/", authenticate, listOrders);
 // GET /api/orders/:id - Get single order by ID
 router.get("/:id", authenticate, getOrder);
 
-// PATCH /api/orders/:id/status - Update order status (Admin only)
-router.patch("/:id/status", authenticate, editOrderStatus);
+// PATCH /api/orders/:id - Update order status (Admin only)
+router.patch("/:id", authenticate, editOrderStatus);
 
 export default router;

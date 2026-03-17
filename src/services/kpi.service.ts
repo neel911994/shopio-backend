@@ -153,8 +153,13 @@ export const getKpis = async () => {
         }
     });
 
-    const criticalStock = lowStockProduct.filter(p => p.stock <= 5).length;
-    const warningStock = lowStockProduct.filter(p => p.stock > 5 && p.stock < 10).length;
+    const lowStockProductWithStatus = lowStockProduct.map(p => ({
+        ...p,
+        stockStatus: p.stock <= 1 ? 'Critical' : p.stock < 5 ? 'Warning' : 'Ok'
+    }));
+
+    const criticalStock = lowStockProduct.filter(p => p.stock <= 1).length;
+    const warningStock = lowStockProduct.filter(p => p.stock > 1 && p.stock < 5).length;
 
     // === INVENTORY VALUE (with trend) ===
     const products = await prisma.product.findMany({
@@ -232,8 +237,8 @@ export const getKpis = async () => {
         orderByStatus,
         avgOrderValue,
         lowStockProduct: {
-            products: lowStockProduct,
-            total: lowStockProduct.length,
+            products: lowStockProductWithStatus,
+            total: lowStockProductWithStatus.length,
             critical: criticalStock,
             warning: warningStock
         },
