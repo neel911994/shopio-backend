@@ -1,33 +1,68 @@
 import prisma from "../utils/prisma";
 
-export const getOrders = async () => {
-    const orders = await prisma.order.findMany({
-        include: {
+interface OrderFilters {
+    status?: string;
+    customerName?: string;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+}
+
+export const getOrders = async (filters: OrderFilters = {}) => {
+    const { status, customerName, startDate, endDate, page = 1, limit = 10 } = filters;
+    const normalizedStatus = status?.toUpperCase();
+    const skip = (page - 1) * limit;
+
+    const where = {
+        ...(normalizedStatus && { status: normalizedStatus as any }),
+        ...(customerName && {
             customer: {
-                select: {
-                    name: true
-                }
-            },
-            items: {
-                include: {
-                    product: {
-                        select: {
-                            id: true,
-                            name: true,
-                            price: true
+                name: { contains: customerName, mode: 'insensitive' as const }
+            }
+        }),
+        ...((startDate || endDate) && {
+            createdAt: {
+                ...(startDate && { gte: new Date(startDate) }),
+                ...(endDate && { lte: new Date(endDate) })
+            }
+        })
+    };
+
+    const [orders, total] = await Promise.all([
+        prisma.order.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                customer: {
+                    select: {
+                        name: true
+                    }
+                },
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                id: true,
+                                name: true,
+                                price: true
+                            }
                         }
                     }
                 }
             }
-        }
-    });
-    console.log("orders raw form", orders);
-    // Transform to desired response format
-    return orders.map(order => ({
+        }),
+        prisma.order.count({ where })
+    ]);
+
+    const data = orders.map(order => ({
         orderId: order.id,
         customerName: order.customer.name,
         status: order.status,
         totalAmount: order.totalAmount,
+        createdAt: order.createdAt.toISOString().split('T')[0],
         products: order.items.map(item => ({
             productId: item.product.id,
             productName: item.product.name,
@@ -35,6 +70,16 @@ export const getOrders = async () => {
             quantity: item.quantity
         }))
     }));
+
+    return {
+        data,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
 };
 
 export const getOrderById = async (id: string) => {
@@ -44,7 +89,9 @@ export const getOrderById = async (id: string) => {
             customer: {
                 select: {
                     id: true,
-                    name: true
+                    name: true,
+                    email: true,
+                    phone: true
                 }
             },
             items: {
@@ -70,9 +117,13 @@ export const getOrderById = async (id: string) => {
     // Transform to desired response format
     return {
         orderId: order.id,
+        status: order.status,
         customerId: order.customer.id,
         customerName: order.customer.name,
+        customerEmail: order.customer.email,
+        customerPhone: order.customer.phone,
         totalAmount: order.totalAmount,
+        createdAt: order.createdAt.toISOString().split('T')[0],
         products: order.items.map(item => ({
             productId: item.product.id,
             productName: item.product.name,
