@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes";
 import orderRoutes from "./routes/order.routes";
 import kpiRoutes from "./routes/kpi.routes";
@@ -11,8 +12,9 @@ import categoryRoutes from "./routes/category.routes";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use("/api/auth", authRoutes);

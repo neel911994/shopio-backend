@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { listOrders, getOrder, editOrderStatus } from "../controllers/order.controller";
+import { listOrders, getOrder, editOrderStatus, getStats } from "../controllers/order.controller";
 import { authenticate, authorizeRoles } from "../middlewares/auth.middleware";
 
 const router = Router();
+
+// GET /api/orders/stats - Order summary stats
+router.get("/stats", authenticate, getStats);
 
 // GET /api/orders - List all orders with query params
 router.get("/", authenticate, listOrders);

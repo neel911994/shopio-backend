@@ -167,3 +167,46 @@ export const updateOrderStatus = async (id: string, status: string) => {
 
     return updatedOrder;
 };
+
+const calcTrend = (current: number, previous: number) => {
+    if (previous === 0) return { percentage: 0, direction: 'up' };
+    const percentage = parseFloat((((current - previous) / previous) * 100).toFixed(1));
+    return { percentage: Math.abs(percentage), direction: percentage >= 0 ? 'up' : 'down' };
+};
+
+export const getOrderStats = async () => {
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+    const [
+        totalOrders, pendingOrders, completedOrders, revenueData,
+        lastMonthTotal, lastMonthPending, lastMonthCompleted, lastMonthRevenue
+    ] = await Promise.all([
+        prisma.order.count(),
+        prisma.order.count({ where: { status: 'PENDING' } }),
+        prisma.order.count({ where: { status: 'DELIVERED' } }),
+        prisma.order.aggregate({ _sum: { totalAmount: true } }),
+
+        prisma.order.count({ where: { createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } } }),
+        prisma.order.count({ where: { status: 'PENDING', createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } } }),
+        prisma.order.count({ where: { status: 'DELIVERED', createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } } }),
+        prisma.order.aggregate({ _sum: { totalAmount: true }, where: { createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } } })
+    ]);
+
+    const thisMonthTotal = await prisma.order.count({ where: { createdAt: { gte: startOfThisMonth } } });
+    const thisMonthPending = await prisma.order.count({ where: { status: 'PENDING', createdAt: { gte: startOfThisMonth } } });
+    const thisMonthCompleted = await prisma.order.count({ where: { status: 'DELIVERED', createdAt: { gte: startOfThisMonth } } });
+    const thisMonthRevenueData = await prisma.order.aggregate({ _sum: { totalAmount: true }, where: { createdAt: { gte: startOfThisMonth } } });
+
+    const thisMonthRevenue = thisMonthRevenueData._sum.totalAmount || 0;
+    const prevMonthRevenue = lastMonthRevenue._sum.totalAmount || 0;
+
+    return {
+        totalOrders: { value: totalOrders, trend: calcTrend(thisMonthTotal, lastMonthTotal) },
+        pendingOrders: { value: pendingOrders, trend: calcTrend(thisMonthPending, lastMonthPending) },
+        completedOrders: { value: completedOrders, trend: calcTrend(thisMonthCompleted, lastMonthCompleted) },
+        revenue: { value: revenueData._sum.totalAmount || 0, trend: calcTrend(thisMonthRevenue, prevMonthRevenue) }
+    };
+};
