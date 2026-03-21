@@ -3,7 +3,8 @@ import { getCustomers, getCustomerById, updateCustomerPhone } from "../services/
 
 export const listCustomers = async (req: Request, res: Response) => {
     try {
-        const customers = await getCustomers();
+        const { search, page, limit } = req.query as { search?: string; page?: string; limit?: string };
+        const customers = await getCustomers(search, page ? parseInt(page) : undefined, limit ? parseInt(limit) : undefined);
         res.json(customers);
     } catch (error: any) {
         res.status(500).json({ message: error.message });

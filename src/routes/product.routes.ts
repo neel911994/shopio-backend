@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { listProducts, getProduct, editProduct, createProduct } from "../controllers/product.controller";
+import { listProducts, getProduct, editProduct, createProduct, getStats } from "../controllers/product.controller";
 import { authenticate, authorizeRoles } from "../middlewares/auth.middleware";
 
 const router = Router();
+
+// GET /api/products/stats - Product stats
+router.get("/stats", authenticate, getStats);
 
 // GET /api/products - List all products
 router.get("/", authenticate, listProducts);
