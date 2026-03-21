@@ -4,9 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec \"ts-node --transpile-only src/server.ts\"",
-    "start": "ts-node src/server.ts"
+    "start": "node dist/server.js",
+    "build": "tsc && npx prisma generate",
+    "dev": "nodemon --exec \"ts-node --transpile-only src/server.ts\" --ext ts,js,json",
+    "prisma:migrate": "npx prisma migrate deploy",
+    "prisma:seed": "npx prisma db seed"
+  },
+   "engines": {
+    "node": ">=18.0.0"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
