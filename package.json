@@ -11,7 +11,7 @@
     "prisma:seed": "npx prisma db seed"
   },
    "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
