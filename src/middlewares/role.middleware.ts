@@ -4,7 +4,7 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 export const authorizeRoles = (allowedRoles: string[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         const user = req.user;
-        if (!user || !allowedRoles.includes(user.role)) {
+        if (!user || !user.role || !allowedRoles.includes(user.role)) {
             return res.status(403).json({ message: 'Forbidden' });
         }
         next();

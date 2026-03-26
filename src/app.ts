@@ -12,7 +12,8 @@ import categoryRoutes from "./routes/category.routes";
 
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
+const allowedOrigins = ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) as string[];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -27,6 +28,10 @@ app.use("/api/categories", categoryRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Shopio Backend API" });
+});
+
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 export default app;
